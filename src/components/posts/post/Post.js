@@ -11,9 +11,13 @@ import Care from "../../../assets/images/care.png";
 import ReactPlayer from "react-player";
 import ReactTimeago from "react-timeago";
 import Style from "./Style";
+import db from "../../../firebase";
 
 const Post = forwardRef(
-  ({ profile, username, timestamp, description, fileType, fileData }, ref) => {
+  (
+    { profile, username, timestamp, description, fileType, fileData, id },
+    ref
+  ) => {
     const classes = Style();
 
     const [likesCount, setLikesCount] = useState(1);
@@ -23,6 +27,8 @@ const Post = forwardRef(
     const [likeIconOrder, setLikeIconOrder] = useState(1);
     const [loveIconOrder, setLoveIconOrder] = useState(1);
     const [careIconOrder, setCareIconOrder] = useState(1);
+    const [userComment, setUserComment] = useState("");
+    const [allUserComments, setAllUserComments] = useState([]);
 
     useEffect(() => {
       setLikesCount(Math.floor(Math.random() * 1000) + 1);
@@ -33,6 +39,43 @@ const Post = forwardRef(
       setCareIconOrder(Math.floor(Math.random() * (3 - 1 + 1)) + 1);
     }, []);
 
+    const fetchComments = () => {
+      db.collection("comments")
+        .where("comment_id", "==", id)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.data());
+            setAllUserComments([doc.data()]);
+          });
+        })
+        .catch((error) => {
+          console.log("Error getting documents: ", error);
+        });
+    };
+    useEffect(() => {
+      fetchComments();
+    }, [allUserComments]);
+    // console.log(allUserComments);
+
+    const userReply = (e) => {
+      e.preventDefault();
+      db.collection("comments")
+        .add({
+          comment_id: id,
+          username: username,
+          profile: profile,
+          comment: userComment,
+        })
+        .then(() => resetState());
+      fetchComments();
+      console.log("userComment", userComment);
+    };
+
+    const resetState = () => {
+      setUserComment("");
+    };
     const Reactions = () => {
       return (
         <div className={classes.footer__stats}>
@@ -108,10 +151,56 @@ const Post = forwardRef(
             </div>
           </div>
           {comments && (
-            <span className="grid grid-cols-2">
-              <Avatar src={profile} />
-              <span>{username}</span>
-            </span>
+            <>
+              <div>
+                {allUserComments != null
+                  ? allUserComments.map((data, index) => {
+                      return (
+                        <>
+                          <div key={index} className={classes.comments}>
+                            <Avatar
+                              style={{ marginRight: "10px" }}
+                              src={profile}
+                            />
+                            <div className="text-4xl">{username}</div>
+                          </div>
+                          <div style={{ margin: "10px" }}>{data.comment}</div>
+                        </>
+                      );
+                    })
+                  : ""}
+              </div>
+
+              <form style={{ width: "100%" }}>
+                <input
+                  type="text"
+                  value={userComment}
+                  onChange={(e) => setUserComment(e.target.value)}
+                  style={{
+                    width: "80%",
+                    padding: "7px 14px",
+                    outline: "none",
+                    border: "none",
+                    margin: "10px",
+                  }}
+                  placeholder="Write a public reply..."
+                />
+                <button
+                  style={{
+                    backgroundColor: "white",
+                    padding: "7px 20px",
+                    border: "none",
+                    outline: "none",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => userReply(e)}
+                >
+                  reply
+                </button>
+              </form>
+            </>
           )}
         </div>
       </Paper>

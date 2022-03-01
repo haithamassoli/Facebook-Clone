@@ -13,7 +13,9 @@ const Posts = () => {
     const unsubscribe = db
       .collection("posts")
       .orderBy("timestamp", "desc")
-      .onSnapshot((snap) => setPosts(snap.docs.map((doc) => ({ id: doc.id, data: doc.data() }))));
+      .onSnapshot((snap) =>
+        setPosts(snap.docs.map((doc) => ({ id: doc.id, data: doc.data() })))
+      );
     return unsubscribe;
   }, []);
 
@@ -23,6 +25,7 @@ const Posts = () => {
         {Array.from(posts).map((post) => (
           <Post
             key={post.id}
+            id={post.id}
             profile={post.data.profile}
             username={post.data.username}
             timestamp={post.data.timestamp}

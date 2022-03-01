@@ -100,7 +100,9 @@ export default makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     paddingBottom: 10,
-    borderBottom: `1px solid ${theme.palette.type === "dark" ? darkSecondary : "lightgrey"}`,
+    borderBottom: `1px solid ${
+      theme.palette.type === "dark" ? darkSecondary : "lightgrey"
+    }`,
 
     "& > div": {
       display: "flex",
@@ -150,7 +152,8 @@ export default makeStyles((theme) => ({
     transition: "all 0.3s ease",
     color: theme.palette.type === "dark" ? "lightgrey" : darkSecondary,
     "&:hover": {
-      backgroundColor: theme.palette.type === "dark" ? darkSecondary : "lightgrey",
+      backgroundColor:
+        theme.palette.type === "dark" ? darkSecondary : "lightgrey",
     },
     [theme.breakpoints.down("xs")]: {
       "&:hover": {
@@ -170,5 +173,12 @@ export default makeStyles((theme) => ({
         fontSize: 12,
       },
     },
+  },
+
+  comments: {
+    display: "flex",
+    justifyContent: "start",
+    alignItems: "center",
+    marginTop: 10,
   },
 }));
